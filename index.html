@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
+    <title>Babylon - Getting Started</title>
+    <!--- link to the last version of babylon --->
+    <script src="Babylon.js/dist/babylon.2.4.js"></script>
+    <style>
+        html, body {
+            overflow: hidden;
+            width   : 100%;
+            height  : 100%;
+            margin  : 0;
+            padding : 0;
+        }
+
+        #renderCanvas {
+            width   : 100%;
+            height  : 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        window.addEventListener('DOMContentLoaded', function(){
+            // get the canvas DOM element
+            var canvas = document.getElementById('renderCanvas');
+
+            // load the 3D engine
+            var engine = new BABYLON.Engine(canvas, true);
+
+	    var orbiting = function(keys, radius){
+		    for(i=0; i<360; i++){
+			    var x = (radius * Math.cos(i));
+			    var y = (radius * Math.sin(i));
+			    keys.push({
+				    frame: i,
+				    value: new BABYLON.Vector3(x,y,0,10)
+			    })
+		    }
+	    }
+
+	    //calculates the orbital position of the object at a particular angle
+	    //theta, this returns a polar coordinate. a is the major axis of 
+	    //the ellipse and e is the eccenticity
+	    var polarOrbit = function(a, e, theta){
+		    return ((a*(1-e*e))/(1+e*Math.cos(theta)));
+	    }
+	    
+	    //calculates the x & y coordinates for an elliptical orbit
+	    //and stores the valyes in the key list. This occurs as a function
+	    //of of theta, from 0 to 360 degrees. 
+	    var elliptical = function(keys, a, e){
+		    for(theta=0; theta<360; theta++){
+			    rad = (theta/180 * Math.PI);
+			    r = polarOrbit(a, e, rad);
+			    var x = r * Math.cos(rad);
+			    var y = r * Math.sin(rad);
+			    keys.push({
+				    frame: theta,
+				    value: new BABYLON.Vector3(x,y,0,10)
+			    })
+		    }
+	    }
+            // createScene function that creates and return the scene
+            var createScene = function(){
+                // create a basic BJS Scene object
+                var scene = new BABYLON.Scene(engine);
+
+                // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
+                var camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5,-10), scene);
+
+                // target the camera to scene origin
+                camera.setTarget(BABYLON.Vector3.Zero());
+
+                // attach the camera to the canvas
+                camera.attachControl(canvas, false);
+
+                // create a basic light, aiming 0,1,0 - meaning, to the sky
+                var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), scene);
+
+                // create a built-in "sphere" shape; its constructor takes 5 params: name, width, depth, subdivisions, scene
+                var earth = BABYLON.Mesh.CreateSphere('earth', 8, 2, scene);
+
+		//this is what animates the earth object
+		var animationEarth = new BABYLON.Animation("animationEarth", "position", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+		
+		var keys = [];
+		//ellpitical populates keys with elliptical coordinates 
+		//params: keys list, major axis, eccentricity
+		//for elliptic orbits, keep e between 0 and 1 not inclusive
+		elliptical(keys, 20, 0.05);
+
+		//animation junk
+		animationEarth.setKeys(keys);
+		earth.animations.push(animationEarth);
+		scene.beginAnimation(earth, 0, 360, true);
+		return scene;
+
+                // return the created scene
+                return scene;
+            }
+
+            // call the createScene function
+            var scene = createScene();
+
+            // run the render loop
+            engine.runRenderLoop(function(){
+                scene.render();
+            });
+
+            // the canvas/window resize event handler
+            window.addEventListener('resize', function(){
+                engine.resize();
+            });
+        });
+    </script>
+</body>
+</html>
