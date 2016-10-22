@@ -52,18 +52,30 @@
 	    //calculates the x & y coordinates for an elliptical orbit
 	    //and stores the valyes in the key list. This occurs as a function
 	    //of of theta, from 0 to 360 degrees. 
-	    var elliptical = function(keys, a, e){
+	    //TODO: make offsets work, which are gonna allow us to have 
+	    //bodies orbiting bodies orbiting bodies
+	    var elliptical = function(keys, a, e, offsetKeys = []){
+		    if(offsetKeys.length == 0){
+			    for(i=0;i<360;i++){
+			    offsetKeys.push({
+				    value: new BABYLON.Vector3.Zero()
+			    })
+			    }}
+
 		    for(theta=0; theta<360; theta++){
 			    rad = (theta/180 * Math.PI);
 			    r = polarOrbit(a, e, rad);
-			    var x = r * Math.cos(rad);
-			    var y = r * Math.sin(rad);
+			    var x = r * Math.cos(rad);// + offsetKeys[theta].x;
+			    var y = r * Math.sin(rad);// + offsetKeys[theta].y;
 			    keys.push({
 				    frame: theta,
 				    value: new BABYLON.Vector3(x,y,0,10)
 			    })
 		    }
 	    }
+
+	    const AU = 1.496 * Math.pow(10, 8)
+
             // createScene function that creates and return the scene
             var createScene = function(){
                 // create a basic BJS Scene object
@@ -82,19 +94,28 @@
                 var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), scene);
 
                 // create a built-in "sphere" shape; its constructor takes 5 params: name, width, depth, subdivisions, scene
-                var earth = BABYLON.Mesh.CreateSphere('earth', 8, 2, scene);
+                var earth = BABYLON.Mesh.CreateSphere('earth', 16, 8, scene);
+		var moon = BABYLON.Mesh.CreateSphere('moon', 16, 2, scene);
+		var sun = BABYLON.Mesh.CreateSphere('sun', 16, 16, scene);
+
+		earth.position = new BABYLON.Vector3(0, 0, 0);
+		moon.position = new BABYLON.Vector3(5,0,0);
+		sun.position = new BABYLON.Vector3(10, 0, 0);
 
 		//this is what animates the earth object
 		var animationEarth = new BABYLON.Animation("animationEarth", "position", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
 		
-		var keys = [];
+		var earthKeys = [];
+		var moonKeys = [];
+		var sunKeys = [];
+
 		//ellpitical populates keys with elliptical coordinates 
 		//params: keys list, major axis, eccentricity
 		//for elliptic orbits, keep e between 0 and 1 not inclusive
-		elliptical(keys, 20, 0.05);
+		elliptical(earthKeys, 20, 0.05);
 
 		//animation junk
-		animationEarth.setKeys(keys);
+		animationEarth.setKeys(earthKeys);
 		earth.animations.push(animationEarth);
 		scene.beginAnimation(earth, 0, 360, true);
 		return scene;
