@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
+    <title>Babylon - Getting Started</title>
+    <script src="babylon.2.3.debug.js"></script>
+    <style>
+        html, body {
+            overflow: hidden;
+            width   : 100%;
+            height  : 100%;
+            margin  : 0;
+            padding : 0;
+        }
+
+        #renderCanvas {
+            width   : 100%;
+            height  : 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        window.addEventListener('DOMContentLoaded', function(){
+            // get the canvas DOM element
+            var canvas = document.getElementById('renderCanvas');
+
+            // load the 3D engine
+            var engine = new BABYLON.Engine(canvas, true);
+
+            //fills the keys vector with values that allows something to move in an orbit
+            var orbiting = function(keys, radius){
+            	for(i=0.00; i<360.00; i++){
+            		var x = (radius * Math.cos(i/180 * Math.PI));
+            		var y = (radius * Math.sin(i/180 * Math.PI));
+            		var z = (radius * Math.cos(i/180 * Math.PI));
+            		keys.push({
+            			frame: i,
+            			value: new BABYLON.Vector3(x,y,0,10)
+            		})
+            	}
+
+            }
+
+            // createScene function that creates and return the scene
+            var createScene = function(){
+                // create a basic BJS Scene object
+                var scene = new BABYLON.Scene(engine);
+
+                //creates a Gamepad camera
+                var camera = new BABYLON.GamepadCamera("Camera", new BABYLON.Vector3(0, 15, -45), scene);
+
+                //adjusts camera sensativity
+                camera.gamepadAngularSensitivity = 5;
+
+                // target the camera to scene origin
+                camera.setTarget(BABYLON.Vector3.Zero());
+
+                // attach the camera to the canvas
+                camera.attachControl(canvas, false);
+
+                // create a basic light, aiming 0,1,0 - meaning, to the sky
+                var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1,1,1), scene);
+
+                // create smaller sphere
+                var sphere = BABYLON.Mesh.CreateSphere('sphere1', 16, 3, scene);
+
+                // create larger, center sphere
+                var sphere2 = BABYLON.Mesh.CreateSphere('sphere2', 16, 5, scene);
+
+                //create animation object
+                var animationSphere = new BABYLON.Animation("myAnimation", "position", 120, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+
+                //create array of position keys
+                var keys = [];
+
+                //call function to fill up array
+                orbiting(keys, 10);
+
+                //apply keys to animation object
+               	animationSphere.setKeys(keys);
+
+               	sphere.animations.push(animationSphere);
+
+               	scene.beginAnimation(sphere, 0, 360, true);
+
+				// var materialSphere1 = new BABYLON.StandardMaterial("texture1", scene);
+
+				// materialSphere1.diffuseTexture = new BABYLON.Texture("/Users/shayaansaiyed/Documents/project/earth.jpg", scene);
+
+				//TEXTURE
+				var materialSphere1 = new BABYLON.StandardMaterial("texture3", scene);
+
+    			materialSphere1.diffuseTexture = new BABYLON.Texture("/Users/shayaansaiyed/Documents/project/Flare.png", scene);
+
+    			
+               	sphere2.material = materialSphere1;
+
+
+               	//PARTICLES
+               	var particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene, BABYLON.customEffect);
+
+               	particleSystem.particleTexture = new BABYLON.Texture("/Users/shayaansaiyed/Documents/project/Flare.png", scene);
+
+               	particleSystem.textureMask = new BABYLON.Color4(0.1, 0.8, 0.8, 1.0);
+
+               	particleSystem.direction1 = new BABYLON.Vector3(-7, 8, 3);
+				particleSystem.direction2 = new BABYLON.Vector3(7, 8, -3);
+
+				particleSystem.minLifeTime = 100
+
+               	particleSystem.emitter = sphere;
+
+               	particleSystem.start();
+
+                return scene;
+            }
+
+            // call the createScene function
+            var scene = createScene();
+
+            // run the render loop
+            engine.runRenderLoop(function(){
+                scene.render();
+            });
+
+            // the canvas/window resize event handler
+            window.addEventListener('resize', function(){
+                engine.resize();
+            });
+        });
+    </script>
+</body>
+</html>
