@@ -54,13 +54,13 @@
 	    //of of theta, from 0 to 360 degrees. 
 	    //TODO: make offsets work, which are gonna allow us to have 
 	    //bodies orbiting bodies orbiting bodies
-	    var elliptical = function(keys, a, e, offsetKeys = []){
-		    if(offsetKeys.length == 0){
-			    for(i=0;i<360;i++){
-			    offsetKeys.push({
-				    value: new BABYLON.Vector3.Zero()
-			    })
-			    }}
+	    var elliptical = function(keys, a, e){//, offsetKeys = []){
+		    // if(offsetKeys.length == 0){
+			   //  for(i=0;i<360;i++){
+			   //  offsetKeys.push({
+				  //   value: new BABYLON.Vector3.Zero()
+			   //  })
+			   //  }}
 
 		    for(theta=0; theta<360; theta++){
 			    rad = (theta/180 * Math.PI);
@@ -82,7 +82,7 @@
                 var scene = new BABYLON.Scene(engine);
 
                 // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
-                var camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5,-10), scene);
+                var camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 0,-100), scene);
 
                 // target the camera to scene origin
                 camera.setTarget(BABYLON.Vector3.Zero());
@@ -99,8 +99,8 @@
 		var sun = BABYLON.Mesh.CreateSphere('sun', 16, 16, scene);
 
 		earth.position = new BABYLON.Vector3(0, 0, 0);
-		moon.position = new BABYLON.Vector3(5,0,0);
-		sun.position = new BABYLON.Vector3(10, 0, 0);
+		moon.position = new BABYLON.Vector3(0, 0, 0);
+		sun.position = new BABYLON.Vector3(0, 0, 0);
 
 		//this is what animates the earth object
 		var animationEarth = new BABYLON.Animation("animationEarth", "position", 30, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
