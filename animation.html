@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
     <title>Babylon - Getting Started</title>
-    <script src="babylon.2.3.debug.js"></script>
+    <script src="Babylon.js/dist/babylon.2.4.js"></script>
     <style>
         html, body {
             overflow: hidden;
@@ -23,6 +23,25 @@
 <body>
     <canvas id="renderCanvas"></canvas>
     <script>
+
+    var MERCURY_AU = 0.3871;
+    var VENUS_AU = 0.7233;
+    var EARTH_AU = 1;
+    var MARS_AU = 1.5273;
+    var JUPITER_AU = 5.2028;
+    var SATURN_AU = 9.5388;
+    var URANUS_AU = 19.1914;
+    var NEPTUNE_AU = 30.0611;
+
+    var MERCURY_ECC = 0.206;
+    var VENUS_ECC = 0.007;
+    var EARTH_ECC = 0.017;
+    var MARS_ECC = 0.093;
+    var JUPITER_ECC = 0.048;
+    var SATURN_ECC = 0.056;
+    var URANUS_ECC = 0.046;
+    var NEPTUNE_ECC = 0.010;
+
         window.addEventListener('DOMContentLoaded', function(){
             // get the canvas DOM element
             var canvas = document.getElementById('renderCanvas');
@@ -31,17 +50,29 @@
             var engine = new BABYLON.Engine(canvas, true);
 
             //fills the keys vector with values that allows something to move in an orbit
-            var orbiting = function(keys, radius){
-            	for(i=0.00; i<360.00; i++){
-            		var x = (radius * Math.cos(i/180 * Math.PI));
-            		var y = (radius * Math.sin(i/180 * Math.PI));
-            		var z = (radius * Math.cos(i/180 * Math.PI));
+            var orbitKeyGenerator = function(keys, axis, ecc){
+            	for(i=0.00; i<3000; i=i+0.01){
+                    var theta = getTheta(axis, i);
+                    var radius = getRadius(axis, ecc, theta);
+            		var x = (300 * radius * Math.cos(theta));
+            		var y = (300 * radius * Math.sin(theta));
             		keys.push({
             			frame: i,
-            			value: new BABYLON.Vector3(x,y,0,10)
+            			value: new BABYLON.Vector3(x,0,y)
             		})
             	}
 
+            }
+
+            var getRadius = function(axis, ecc, theta){
+                var scaled_axis = axis;
+                return (scaled_axis * (1 - Math.exp(ecc, 2)))/(1 + ecc * Math.cos(theta))
+            }
+
+            var getTheta = function(axis, time){
+                // axis in AU
+                var scaled_axis = axis;
+                return time * 2 * Math.PI * Math.sqrt(1/Math.exp(scaled_axis,3))
             }
 
             // createScene function that creates and return the scene
@@ -65,55 +96,204 @@
                 var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1,1,1), scene);
 
                 // create smaller sphere
-                var sphere = BABYLON.Mesh.CreateSphere('sphere1', 16, 3, scene);
+                
 
                 // create larger, center sphere
-                var sphere2 = BABYLON.Mesh.CreateSphere('sphere2', 16, 5, scene);
+                var theSun = BABYLON.Mesh.CreateSphere('sphere2', 16, 5, scene);
 
+                //var mars = BABYLON.Mesh.CreateSphere('sphere3', 16, 8, scene);
+
+                //EARTH
                 //create animation object
-                var animationSphere = new BABYLON.Animation("myAnimation", "position", 120, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+                var earth = BABYLON.Mesh.CreateSphere('sphere1', 16, 2, scene);
+
+                var animationSphere = new BABYLON.Animation("myAnimation", "position", 1, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
 
                 //create array of position keys
-                var keys = [];
-
+                var keysEarth = [];
                 //call function to fill up array
-                orbiting(keys, 10);
+                orbitKeyGenerator(keysEarth, EARTH_AU, EARTH_ECC);
 
                 //apply keys to animation object
-               	animationSphere.setKeys(keys);
+               	animationSphere.setKeys(keysEarth);
 
-               	sphere.animations.push(animationSphere);
+               	earth.animations.push(animationSphere);
 
-               	scene.beginAnimation(sphere, 0, 360, true);
+               	scene.beginAnimation(earth, 0, 100, true);
+
+                //MARS
+                var mars = BABYLON.Mesh.CreateSphere('sphere1', 16, 2, scene);
+
+                var animationMars = new BABYLON.Animation("myAnimation", "position", 1, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+
+                //create array of position keys
+                var keysMars = [];
+                //call function to fill up array
+                orbitKeyGenerator(keysMars, MARS_AU, MARS_ECC);
+
+                //apply keys to animation object
+                animationMars.setKeys(keysMars);
+
+                mars.animations.push(animationMars);
+
+                scene.beginAnimation(mars, 0, 100, true);
+
+                //Mercury hidden for this version due to high eccentricity.
+                // //MERCURY
+                // var mercury = BABYLON.Mesh.CreateSphere('sphere1', 16, 1, scene);
+
+                // var animationMercury = new BABYLON.Animation("myAnimation", "position", 1, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+
+                // //create array of position keys
+                // var keysMercury = [];
+                // //call function to fill up array
+                // orbitKeyGenerator(keysMercury, MERCURY_AU, MERCURY_ECC);
+
+                // //apply keys to animation object
+                // animationMercury.setKeys(keysMercury);
+
+                // mercury.animations.push(animationMercury);
+
+                // scene.beginAnimation(mercury, 0, 100, true);
+
+
+                //JUPITER
+                var jupiter = BABYLON.Mesh.CreateSphere('sphere1', 16, 3, scene);
+
+                var animationJupiter = new BABYLON.Animation("myAnimation", "position", 1, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+
+                //create array of position keys
+                var keysJupiter = [];
+                //call function to fill up array
+                orbitKeyGenerator(keysJupiter, JUPITER_AU, JUPITER_ECC);
+
+                //apply keys to animation object
+                animationJupiter.setKeys(keysJupiter);
+
+                jupiter.animations.push(animationJupiter);
+
+                scene.beginAnimation(jupiter, 0, 100, true);
+
+
+                //SATURN
+                var saturn = BABYLON.Mesh.CreateSphere('sphere1', 16, 7, scene);
+
+                var animationSaturn = new BABYLON.Animation("myAnimation", "position", 4, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+
+                //create array of position keys
+                var keysSaturn = [];
+                //call function to fill up array
+                orbitKeyGenerator(keysSaturn, SATURN_AU, SATURN_ECC);
+
+                //apply keys to animation object
+                animationSaturn.setKeys(keysSaturn);
+
+                saturn.animations.push(animationSaturn);
+
+                scene.beginAnimation(saturn, 0, 100, true);
+
+
+                //URANUS
+                var uranus = BABYLON.Mesh.CreateSphere('sphere1', 16, 10, scene);
+
+                var animationUranus = new BABYLON.Animation("myAnimation", "position", 4, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+
+                //create array of position keys
+                var keysUranus = [];
+                //call function to fill up array
+                orbitKeyGenerator(keysUranus, URANUS_AU, URANUS_ECC);
+
+                //apply keys to animation object
+                animationUranus.setKeys(keysUranus);
+
+                uranus.animations.push(animationUranus);
+
+                scene.beginAnimation(uranus, 0, 100, true);
+
+
+                var neptune = BABYLON.Mesh.CreateSphere('sphere1', 16, 10, scene);
+
+                var animationNeptune = new BABYLON.Animation("myAnimation", "position", 4, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+
+                //create array of position keys
+                var keysNeptune = [];
+                //call function to fill up array
+                orbitKeyGenerator(keysNeptune, NEPTUNE_AU, NEPTUNE_ECC);
+
+                //apply keys to animation object
+                animationNeptune.setKeys(keysNeptune);
+
+                neptune.animations.push(animationNeptune);
+
+                scene.beginAnimation(neptune, 0, 100, true);
+
+
+
+    //             var animationSphere2 = new BABYLON.Animation("myAnimation", "position", 120, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+
+    //             var keys2 = [];
+
+    //             orbitKeyGenerator(keys2, 50);
+
+    //             animationSphere2.setKeys(keys2);
+
+    //             sphere3.animations.push(animationSphere2);
+
+    //             scene.beginAnimation(sphere3, 0, 360, true);
 
 				// var materialSphere1 = new BABYLON.StandardMaterial("texture1", scene);
 
-				// materialSphere1.diffuseTexture = new BABYLON.Texture("/Users/shayaansaiyed/Documents/project/earth.jpg", scene);
+    //             sphere2.material = materialSphere1;
 
-				//TEXTURE
-				var materialSphere1 = new BABYLON.StandardMaterial("texture3", scene);
+				// materialSphere1.diffuseTexture = new BABYLON.Texture("earth.jpg", scene);
+               	
+    //             //ROTATION
+    //             var rotateSphere = new BABYLON.Animation("myAnimation", "rotation.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+    //             // An array with all animation keys
+    //             var keysR = []; 
 
-    			materialSphere1.diffuseTexture = new BABYLON.Texture("/Users/shayaansaiyed/Documents/project/Flare.png", scene);
+    //             //At the animation key 0, the value of scaling is "1"
+    //               keysR.push({
+    //                 frame: 0,
+    //                 value: 1
+    //               });
 
-    			
-               	sphere2.material = materialSphere1;
+    //               //At the animation key 20, the value of scaling is "0.2"
+    //               keysR.push({
+    //                 frame: 360,
+    //                 value: 10
+    //               });
+
+    //               //At the animation key 100, the value of scaling is "1"
+    //               // keysR.push({
+    //               //   frame: 100,
+    //               //   value: 1
+    //               // });
+
+    //               rotateSphere.setKeys(keysR);
+
+    //               sphere2.animations.push(rotateSphere);
+
+    //               scene.beginAnimation(sphere2, 0, 360, true);
+
+                 
 
 
-               	//PARTICLES
-               	var particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene, BABYLON.customEffect);
+    //            	//PARTICLES
+    //            	var particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene, BABYLON.customEffect);
 
-               	particleSystem.particleTexture = new BABYLON.Texture("/Users/shayaansaiyed/Documents/project/Flare.png", scene);
+    //            	particleSystem.particleTexture = new BABYLON.Texture("/Users/shayaansaiyed/Documents/project/Flare.png", scene);
 
-               	particleSystem.textureMask = new BABYLON.Color4(0.1, 0.8, 0.8, 1.0);
+    //            	particleSystem.textureMask = new BABYLON.Color4(0.1, 0.8, 0.8, 1.0);
 
-               	particleSystem.direction1 = new BABYLON.Vector3(-7, 8, 3);
-				particleSystem.direction2 = new BABYLON.Vector3(7, 8, -3);
+    //            	particleSystem.direction1 = new BABYLON.Vector3(-7, 8, 3);
+				// particleSystem.direction2 = new BABYLON.Vector3(7, 8, -3);
 
-				particleSystem.minLifeTime = 100
+				// particleSystem.minLifeTime = 100
 
-               	particleSystem.emitter = sphere;
+    //            	particleSystem.emitter = sphere;
 
-               	particleSystem.start();
+    //            	particleSystem.start();
 
                 return scene;
             }
