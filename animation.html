@@ -94,7 +94,7 @@
 
                 var materialSphere1 = new BABYLON.StandardMaterial("texture1", scene);
 
-                materialSphere1.diffuseColor = new BABYLON.Color3(10, 0.2, 0.7);
+                materialSphere1.diffuseColor = new BABYLON.Color3(255, 255, 0.0);
 
                 // create a basic light, aiming 0,1,0 - meaning, to the sky
                 var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1,1,1), scene);
@@ -104,6 +104,8 @@
 
                 //Sun and planets not yet to scale
                 var theSun = BABYLON.Mesh.CreateSphere('sphere2', 16, 5, scene);
+
+                theSun.material = materialSphere1;
 
                 //var mars = BABYLON.Mesh.CreateSphere('sphere3', 16, 8, scene);
 
@@ -125,6 +127,12 @@
 
                	scene.beginAnimation(earth, 0, 100, true);
 
+                var materialSphere3 = new BABYLON.StandardMaterial("texture1", scene);
+
+                materialSphere3.diffuseColor = new BABYLON.Color3(0, 1.0, 1);
+
+                earth.material = materialSphere3;
+
                 //MARS
                 var mars = BABYLON.Mesh.CreateSphere('sphere1', 16, 5, scene);
 
@@ -141,6 +149,12 @@
                 mars.animations.push(animationMars);
 
                 scene.beginAnimation(mars, 0, 100, true);
+
+                var materialSphere4 = new BABYLON.StandardMaterial("texture1", scene);
+
+                materialSphere4.diffuseColor = new BABYLON.Color3(1.0, 0, 0);
+
+                mars.material = materialSphere4;
 
                 //Mercury hidden for this version due to high eccentricity.
                 // //MERCURY
@@ -178,9 +192,15 @@
 
                 scene.beginAnimation(jupiter, 0, 100, true);
 
+                var materialSphere5 = new BABYLON.StandardMaterial("texture1", scene);
+
+                materialSphere5.diffuseColor = new BABYLON.Color3(0.9, 0.9, 0.9);
+
+                jupiter.material = materialSphere5;
+
 
                 //SATURN
-                var saturn = BABYLON.Mesh.CreateSphere('sphere7', 16, 7, scene);
+                var saturn = BABYLON.Mesh.CreateSphere('sphere7', 16, 10, scene);
 
                 var animationSaturn = new BABYLON.Animation("myAnimation7", "position", 1, BABYLON.Animation.ANIMATIONTYPE_VECTOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
 
@@ -249,6 +269,12 @@
                 venus.animations.push(animationVenus);
 
                 scene.beginAnimation(venus, 0, 100, true);
+
+                var materialSphere2 = new BABYLON.StandardMaterial("texture1", scene);
+
+                materialSphere2.diffuseColor = new BABYLON.Color3(0.9, 0.8, 0.7);
+
+                venus.material = materialSphere2;
 
 
 
